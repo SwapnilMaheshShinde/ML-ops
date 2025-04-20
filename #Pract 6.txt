@@ -1,0 +1,51 @@
+#pract 6
+
+import numpy as np
+import tensorflow as tf
+import matplotlib.pyplot as plt
+
+data = np.sin(np.arange(100) * 0.1)
+data.shape
+
+X, y = [], []
+for i in range(len(data) - 10):
+    X.append(data[i:i+10])
+    y.append(data[i+10])
+
+
+X, y = np.array(X), np.array(y)
+X = X.reshape(-1, 10, 1)
+
+
+model = tf.keras.Sequential([
+    tf.keras.layers.Input(shape=(10, 1)),
+    tf.keras.layers.LSTM(20),
+    tf.keras.layers.Dense(1)
+])
+
+
+model.compile(optimizer='adam', loss='mse')
+
+
+
+model.fit(X, y, epochs=10, verbose=1)
+
+
+preds = []
+seq = X[-1]
+
+
+
+for _ in range(10):
+    pred = model.predict(seq.reshape(1, 10, 1), verbose=0)[0, 0]
+    preds.append(pred)
+    seq = np.roll(seq, -1) # shift sequence
+    seq[-1] = pred # append predicted value
+
+
+
+
+plt.plot(data, label='Actual')
+plt.plot(range(90, 100), preds, 'ro-', label='Predicted')
+plt.legend()
+plt.show()

@@ -1,0 +1,94 @@
+#pract 2
+
+import numpy as np
+import pandas as pd
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+import joblib
+
+
+iris = datasets.load_iris()
+
+
+X = iris.data
+y = iris.target
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+
+pd.DataFrame(X_train, columns=iris.feature_names).head()
+
+
+model_v1 = LogisticRegression(max_iter=200)
+model_v1.fit(X_train, y_train)
+
+
+y_pred_v1 = model_v1.predict(X_test)
+
+
+accuracy_v1 = accuracy_score(y_test, y_pred_v1)
+print(f"Accuracy of Logistic Regression (v1): {accuracy_v1:.4f}")
+
+
+
+import os
+os.makedirs('../models', exist_ok=True) 
+
+joblib.dump(model_v1, '../models/model_v1.pkl')
+
+
+from sklearn.model_selection import GridSearchCV
+
+
+param_grid = {
+    'C': [0.01, 0.1, 1, 10],
+    'solver': ['liblinear', 'saga']
+}
+
+
+grid_search = GridSearchCV(LogisticRegression(max_iter=200), param_grid, cv=5)
+grid_search.fit(X_train, y_train)
+
+
+
+print(f"Best Parameters: {grid_search.best_params_}")
+
+
+best_model = grid_search.best_estimator_
+
+
+
+y_pred_best = best_model.predict(X_test)
+
+
+
+
+accuracy_v2 = accuracy_score(y_test, y_pred_best)
+print(f"Accuracy of Tuned Logistic Regression (v2): {accuracy_v2:.4f}")
+
+
+
+
+
+import os
+os.makedirs('../models', exist_ok=True) 
+
+joblib.dump(model_v1, '../models/model_v2.pkl')
+
+
+
+
+
+print("Model Comparison:-")
+print(f"Model v1 (Logistic Regression) Accuracy: {accuracy_v1:.4f}")
+print(f"Model v2 (Tuned Logistic Regression) Accuracy: {accuracy_v2:.4f}")
+
+

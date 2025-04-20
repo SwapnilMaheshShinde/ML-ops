@@ -1,0 +1,109 @@
+# pract 4
+# python --version
+
+#python -m venv ml_env
+
+#ml_env\Scripts\activate
+
+#pip install jupyter matplotlib seaborn pandas scikit-learn
+
+#jupyter notebook
+
+# !pip freeze > requirements.txt  # Note the exclamation mark
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.datasets import load_wine
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, confusion_matrix
+import joblib
+
+
+
+wine = load_wine()
+X = pd.DataFrame(wine.data, columns=wine.feature_names)
+y = pd.Series(wine.target)
+
+X.head()
+
+
+
+
+print(X.isnull().sum())
+
+
+
+
+print(X.describe())
+
+
+X.hist(figsize=(15, 10))
+plt.tight_layout()
+plt.show()
+
+
+plt.figure(figsize=(12, 10))
+sns.heatmap(X.corr(), annot=False, cmap='coolwarm')
+plt.title('Feature Correlation Heatmap')
+plt.show()
+
+
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+
+
+
+
+
+
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+
+
+import os
+os.makedirs("../models", exist_ok=True)
+joblib.dump(scaler, '../models/wine_scaler.pkl')
+
+
+
+model = LogisticRegression(max_iter=1000, random_state=42)
+model.fit(X_train, y_train)
+
+
+
+os.makedirs("../models", exist_ok=True)
+joblib.dump(model, '../models/wine_model.pkl')
+
+
+
+y_pred = model.predict(X_test)
+
+
+
+y_pred = model.predict(X_test)
+
+
+
+
+
+
+conf_matrix = confusion_matrix(y_test, y_pred)
+
+plt.figure(figsize=(6, 4))
+sns.heatmap(conf_matrix, annot=True, fmt="d", cmap="Blues")
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix')
+plt.show()
+
+
+!pip freeze > requirements.txt  # Note the exclamation mark
